@@ -1,7 +1,17 @@
 import * as anchor from "@coral-xyz/anchor";
-import { BorshAccountsCoder, BorshInstructionCoder, type Idl } from "@coral-xyz/anchor";
+import {
+  BorshAccountsCoder,
+  BorshInstructionCoder,
+  type Idl,
+} from "@coral-xyz/anchor";
 import { LiteSVM } from "litesvm";
-import { Keypair, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js";
+import {
+  Keypair,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
 import { expect } from "chai";
 import path from "path";
 import { createRequire } from "module";
@@ -13,7 +23,9 @@ const oracleIdl = require("../target/idl/sol_usd_oracle.json");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ORACLE_PROGRAM_ID = new PublicKey("4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU");
+const ORACLE_PROGRAM_ID = new PublicKey(
+  "4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU"
+);
 const ORACLE_SO = path.resolve(__dirname, "../target/deploy/sol_usd_oracle.so");
 const ORACLE_SEED = Buffer.from("oracle_state");
 
@@ -36,10 +48,14 @@ function assertFailure(res: any) {
   throw new Error("LiteSVM result does not expose err()");
 }
 
-function buildTx(ixs: TransactionInstruction[], feePayer: Keypair, svm: LiteSVM) {
+function buildTx(
+  ixs: TransactionInstruction[],
+  feePayer: Keypair,
+  svm: LiteSVM
+) {
   const tx = new Transaction({
     feePayer: feePayer.publicKey,
-    recentBlockhash: svm.latestBlockhash()
+    recentBlockhash: svm.latestBlockhash(),
   });
   tx.add(...ixs);
   tx.sign(feePayer);
@@ -57,7 +73,10 @@ describe("sol_usd_oracle (LiteSVM)", () => {
 
   const payer = Keypair.generate();
   const attacker = Keypair.generate();
-  const [oraclePda] = PublicKey.findProgramAddressSync([ORACLE_SEED], ORACLE_PROGRAM_ID);
+  const [oraclePda] = PublicKey.findProgramAddressSync(
+    [ORACLE_SEED],
+    ORACLE_PROGRAM_ID
+  );
 
   before(() => {
     svm.airdrop(payer.publicKey, BigInt(5_000_000_000));
@@ -71,9 +90,9 @@ describe("sol_usd_oracle (LiteSVM)", () => {
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
         { pubkey: payer.publicKey, isSigner: true, isWritable: true },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data
+      data,
     });
 
     const res = svm.sendTransaction(buildTx([ix], payer, svm));
@@ -81,12 +100,15 @@ describe("sol_usd_oracle (LiteSVM)", () => {
 
     const acct = svm.getAccount(oraclePda);
     expect(acct).to.not.be.null;
-    const decoded = accountsCoder.decode("OracleState", Buffer.from((acct as any).data));
+    const decoded = accountsCoder.decode(
+      "OracleState",
+      Buffer.from((acct as any).data)
+    );
     expect(decoded.admin.toBase58()).to.eq(payer.publicKey.toBase58());
     expect(decoded.price.toNumber()).to.eq(0);
     // TODO(student): this expectation is intentionally wrong.
     // Re-check how many decimals the oracle stores for the SOL/USD price.
-    expect(decoded.decimals).to.eq(8);
+    expect(decoded.decimals).to.eq(6);
   });
 
   it("update_price updates price only for admin", () => {
@@ -96,35 +118,43 @@ describe("sol_usd_oracle (LiteSVM)", () => {
       programId: ORACLE_PROGRAM_ID,
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
-        { pubkey: payer.publicKey, isSigner: true, isWritable: false }
+        { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       ],
-      data
+      data,
     });
 
     const res = svm.sendTransaction(buildTx([ix], payer, svm));
     assertSuccess(res);
 
     const acct = svm.getAccount(oraclePda);
-    const decoded = accountsCoder.decode("OracleState", Buffer.from((acct as any).data));
+    const decoded = accountsCoder.decode(
+      "OracleState",
+      Buffer.from((acct as any).data)
+    );
     expect(decoded.price.toString()).to.eq(newPrice.toString());
   });
 
   it("rejects update_price from non-admin signer", () => {
-    const data = coder.encode("update_price", { new_price: new BN(999_000_000) });
+    const data = coder.encode("update_price", {
+      new_price: new BN(999_000_000),
+    });
     const ix = new TransactionInstruction({
       programId: ORACLE_PROGRAM_ID,
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
-        { pubkey: attacker.publicKey, isSigner: true, isWritable: false }
+        { pubkey: attacker.publicKey, isSigner: true, isWritable: false },
       ],
-      data
+      data,
     });
 
     const res = svm.sendTransaction(buildTx([ix], attacker, svm));
     assertFailure(res);
 
     const acct = svm.getAccount(oraclePda);
-    const decoded = accountsCoder.decode("OracleState", Buffer.from((acct as any).data));
+    const decoded = accountsCoder.decode(
+      "OracleState",
+      Buffer.from((acct as any).data)
+    );
     expect(decoded.price.toString()).to.eq("123000000");
   });
 
@@ -134,16 +164,19 @@ describe("sol_usd_oracle (LiteSVM)", () => {
       programId: ORACLE_PROGRAM_ID,
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
-        { pubkey: payer.publicKey, isSigner: true, isWritable: false }
+        { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       ],
-      data
+      data,
     });
 
     const res = svm.sendTransaction(buildTx([ix], payer, svm));
     assertFailure(res);
 
     const acct = svm.getAccount(oraclePda);
-    const decoded = accountsCoder.decode("OracleState", Buffer.from((acct as any).data));
+    const decoded = accountsCoder.decode(
+      "OracleState",
+      Buffer.from((acct as any).data)
+    );
     expect(decoded.price.toString()).to.eq("123000000");
   });
 });
