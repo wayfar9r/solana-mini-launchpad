@@ -5,19 +5,20 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.localnet]
-sol_usd_oracle = "4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU"
-token_minter = "E5erGzaxgCwHqH7RjLXLGWziXj8CXpyN7zW6BRodfFnE"
-
 [programs.devnet]
 sol_usd_oracle = "4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU"
 token_minter = "E5erGzaxgCwHqH7RjLXLGWziXj8CXpyN7zW6BRodfFnE"
+
+[programs.localnet]
+sol_usd_oracle = "3EKbZCxvUXzrZaVKYHc7BcyqrVQPpMmN3vysSxPfZ6iE"
+token_minter = "CuDJpGcDkPPUyFXQrGV6x3WZGADdiVE3tcK7WA4j5vFa"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+# cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
