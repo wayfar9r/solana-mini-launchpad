@@ -1,14 +1,21 @@
 import * as anchor from "@coral-xyz/anchor";
-import { BorshAccountsCoder, BorshInstructionCoder, type Idl } from "@coral-xyz/anchor";
+import {
+  BorshAccountsCoder,
+  BorshInstructionCoder,
+  type Idl,
+} from "@coral-xyz/anchor";
 import { LiteSVM } from "litesvm";
 import {
   Keypair,
   PublicKey,
   SystemProgram,
   Transaction,
-  TransactionInstruction
+  TransactionInstruction,
 } from "@solana/web3.js";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import {
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import { expect } from "chai";
 import path from "path";
 import { createRequire } from "module";
@@ -21,8 +28,12 @@ const minterIdl = require("../target/idl/token_minter.json");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ORACLE_PROGRAM_ID = new PublicKey("4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU");
-const MINTER_PROGRAM_ID = new PublicKey("E5erGzaxgCwHqH7RjLXLGWziXj8CXpyN7zW6BRodfFnE");
+const ORACLE_PROGRAM_ID = new PublicKey(
+  "4cuvLFFqhaKnTHfeq2FtTUvgudRSe7wq982fA9PBUqBU"
+);
+const MINTER_PROGRAM_ID = new PublicKey(
+  "E5erGzaxgCwHqH7RjLXLGWziXj8CXpyN7zW6BRodfFnE"
+);
 
 const ORACLE_SO = path.resolve(__dirname, "../target/deploy/sol_usd_oracle.so");
 const MINTER_SO = path.resolve(__dirname, "../target/deploy/token_minter.so");
@@ -53,13 +64,19 @@ function assertFailure(res: any) {
   throw new Error("LiteSVM result does not expose err()");
 }
 
-function buildTx(ixs: TransactionInstruction[], feePayer: Keypair, svm: LiteSVM) {
+function buildTx(
+  ixs: TransactionInstruction[],
+  feePayer: Keypair,
+  svm: LiteSVM
+) {
   const tx = new Transaction({
     feePayer: feePayer.publicKey,
-    recentBlockhash: svm.latestBlockhash()
+    recentBlockhash: svm.latestBlockhash(),
   });
   tx.add(...ixs);
-  tx.sign(...[feePayer, ...ixs.flatMap((ix) => (ix as any)._additionalSigners ?? [])]);
+  tx.sign(
+    ...[feePayer, ...ixs.flatMap((ix) => (ix as any)._additionalSigners ?? [])]
+  );
   return tx;
 }
 
@@ -75,8 +92,14 @@ describe("token_minter (LiteSVM)", () => {
 
   const payer = Keypair.generate();
   const treasury = Keypair.generate();
-  const [oraclePda] = PublicKey.findProgramAddressSync([ORACLE_SEED], ORACLE_PROGRAM_ID);
-  const [minterPda] = PublicKey.findProgramAddressSync([MINTER_SEED], MINTER_PROGRAM_ID);
+  const [oraclePda] = PublicKey.findProgramAddressSync(
+    [ORACLE_SEED],
+    ORACLE_PROGRAM_ID
+  );
+  const [minterPda] = PublicKey.findProgramAddressSync(
+    [MINTER_SEED],
+    MINTER_PROGRAM_ID
+  );
 
   before(() => {
     svm.airdrop(payer.publicKey, BigInt(10_000_000_000));
@@ -90,9 +113,9 @@ describe("token_minter (LiteSVM)", () => {
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
         { pubkey: payer.publicKey, isSigner: true, isWritable: true },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
-      data: oracleCoder.encode("initialize_oracle", { admin: payer.publicKey })
+      data: oracleCoder.encode("initialize_oracle", { admin: payer.publicKey }),
     });
 
     // update price
@@ -100,9 +123,9 @@ describe("token_minter (LiteSVM)", () => {
       programId: ORACLE_PROGRAM_ID,
       keys: [
         { pubkey: oraclePda, isSigner: false, isWritable: true },
-        { pubkey: payer.publicKey, isSigner: true, isWritable: false }
+        { pubkey: payer.publicKey, isSigner: true, isWritable: false },
       ],
-      data: oracleCoder.encode("update_price", { new_price: PRICE })
+      data: oracleCoder.encode("update_price", { new_price: PRICE }),
     });
 
     // init minter
@@ -111,21 +134,21 @@ describe("token_minter (LiteSVM)", () => {
       keys: [
         { pubkey: minterPda, isSigner: false, isWritable: true },
         { pubkey: payer.publicKey, isSigner: true, isWritable: true },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
       ],
       data: minterCoder.encode("initialize_minter", {
         treasury: treasury.publicKey,
         mint_fee_usd: FEE_USD,
         oracle_state: oraclePda,
-        oracle_program: ORACLE_PROGRAM_ID
-      })
+        oracle_program: ORACLE_PROGRAM_ID,
+      }),
     });
 
     const mintKeypair = Keypair.generate();
     const user = payer;
     const userAta = anchor.utils.token.associatedAddress({
       owner: user.publicKey,
-      mint: mintKeypair.publicKey
+      mint: mintKeypair.publicKey,
     });
 
     const mintIx = new TransactionInstruction({
@@ -141,17 +164,25 @@ describe("token_minter (LiteSVM)", () => {
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-        { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        {
+          pubkey: ASSOCIATED_TOKEN_PROGRAM_ID,
+          isSigner: false,
+          isWritable: false,
+        },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: anchor.web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+        {
+          pubkey: anchor.web3.SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
       ],
       data: minterCoder.encode("mint_token", {
         decimals: 6,
         initial_supply: new BN(1_000_000),
         name: "",
         symbol: "",
-        uri: ""
-      })
+        uri: "",
+      }),
     });
     // attach extra signer for mint
     (mintIx as any)._additionalSigners = [mintKeypair];
@@ -167,10 +198,18 @@ describe("token_minter (LiteSVM)", () => {
     assertSuccess(res);
 
     const treasuryAfter = svm.getBalance(treasury.publicKey) ?? BigInt(0);
+
     // TODO(student): this formula is intentionally broken.
     // The fee should get smaller when SOL/USD price gets larger.
-    const expectedFee = PRICE.mul(new BN(anchor.web3.LAMPORTS_PER_SOL)).div(FEE_USD);
-    expect(treasuryAfter - treasuryBefore).to.eq(BigInt(expectedFee.toString()));
+    // const expectedFee = PRICE.mul(new BN(anchor.web3.LAMPORTS_PER_SOL)).div(
+    //   FEE_USD
+    // );
+    const expectedFee = FEE_USD.mul(new BN(anchor.web3.LAMPORTS_PER_SOL)).div(
+      PRICE
+    );
+    expect(treasuryAfter - treasuryBefore).to.eq(
+      BigInt(expectedFee.toString())
+    );
 
     const mintAcct = svm.getAccount(mintKeypair.publicKey);
     expect(mintAcct).to.not.be.null;
@@ -179,14 +218,21 @@ describe("token_minter (LiteSVM)", () => {
     expect(ataAcct).to.not.be.null;
 
     const cfgRaw = svm.getAccount(minterPda);
-    const cfg: any = minterAccounts.decode("MinterConfig", Buffer.from((cfgRaw as any).data));
+    const cfg: any = minterAccounts.decode(
+      "MinterConfig",
+      Buffer.from((cfgRaw as any).data)
+    );
     const mintFee = cfg.mint_fee_usd ?? cfg.mintFeeUsd;
     expect(mintFee.toString()).to.eq(FEE_USD.toString());
-    const treasuryPk: PublicKey = cfg.treasury ?? cfg.treasuryPubkey ?? cfg.treasury_pubkey;
+    const treasuryPk: PublicKey =
+      cfg.treasury ?? cfg.treasuryPubkey ?? cfg.treasury_pubkey;
     expect(treasuryPk.toBase58()).to.eq(treasury.publicKey.toBase58());
 
     const oracleRaw = svm.getAccount(oraclePda);
-    const oracle = oracleAccounts.decode("OracleState", Buffer.from((oracleRaw as any).data));
+    const oracle = oracleAccounts.decode(
+      "OracleState",
+      Buffer.from((oracleRaw as any).data)
+    );
     expect(oracle.price.toString()).to.eq(PRICE.toString());
   });
 
@@ -194,7 +240,7 @@ describe("token_minter (LiteSVM)", () => {
     const mintKeypair = Keypair.generate();
     const userAta = anchor.utils.token.associatedAddress({
       owner: payer.publicKey,
-      mint: mintKeypair.publicKey
+      mint: mintKeypair.publicKey,
     });
     const mintIx = new TransactionInstruction({
       programId: MINTER_PROGRAM_ID,
@@ -209,17 +255,25 @@ describe("token_minter (LiteSVM)", () => {
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-        { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        {
+          pubkey: ASSOCIATED_TOKEN_PROGRAM_ID,
+          isSigner: false,
+          isWritable: false,
+        },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: anchor.web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+        {
+          pubkey: anchor.web3.SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
       ],
       data: minterCoder.encode("mint_token", {
         decimals: 6,
         initial_supply: new BN(0),
         name: "",
         symbol: "",
-        uri: ""
-      })
+        uri: "",
+      }),
     });
     (mintIx as any)._additionalSigners = [mintKeypair];
 
@@ -234,7 +288,7 @@ describe("token_minter (LiteSVM)", () => {
     const mintKeypair = Keypair.generate();
     const userAta = anchor.utils.token.associatedAddress({
       owner: payer.publicKey,
-      mint: mintKeypair.publicKey
+      mint: mintKeypair.publicKey,
     });
     const mintIx = new TransactionInstruction({
       programId: MINTER_PROGRAM_ID,
@@ -249,17 +303,25 @@ describe("token_minter (LiteSVM)", () => {
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
-        { pubkey: ASSOCIATED_TOKEN_PROGRAM_ID, isSigner: false, isWritable: false },
+        {
+          pubkey: ASSOCIATED_TOKEN_PROGRAM_ID,
+          isSigner: false,
+          isWritable: false,
+        },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
-        { pubkey: anchor.web3.SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+        {
+          pubkey: anchor.web3.SYSVAR_RENT_PUBKEY,
+          isSigner: false,
+          isWritable: false,
+        },
       ],
       data: minterCoder.encode("mint_token", {
         decimals: 10,
         initial_supply: new BN(1_000_000),
         name: "",
         symbol: "",
-        uri: ""
-      })
+        uri: "",
+      }),
     });
     (mintIx as any)._additionalSigners = [mintKeypair];
 
