@@ -53,7 +53,8 @@ impl Config {
             env::var("BACKEND_KEYPAIR_PATH").context("BACKEND_KEYPAIR_PATH is required")?;
         if backend_keypair_path.starts_with("~/") {
             if let Some(home) = env::var_os("HOME") {
-                backend_keypair_path = format!("{}/{}", home.to_string_lossy(), &backend_keypair_path[2..]);
+                backend_keypair_path =
+                    format!("{}/{}", home.to_string_lossy(), &backend_keypair_path[2..]);
             }
         }
         let poll = env::var("PRICE_POLL_INTERVAL_SEC")
@@ -149,7 +150,11 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn run_price_updater(cfg: Config, price_source: PriceSource, admin: Arc<Keypair>) -> Result<()> {
+async fn run_price_updater(
+    cfg: Config,
+    price_source: PriceSource,
+    admin: Arc<Keypair>,
+) -> Result<()> {
     let client = RpcClient::new(cfg.rpc_http.clone());
     let mut ticker = interval(cfg.price_poll_interval);
 
@@ -172,7 +177,10 @@ async fn try_update_price(
     match price_source.fetch_price().await {
         Ok(price) => {
             if price == 0 {
-                warn!("Skipped {} price update because fetched price is zero", kind);
+                warn!(
+                    "Skipped {} price update because fetched price is zero",
+                    kind
+                );
                 return;
             }
             match submit_price(client, cfg, price, admin).await {
@@ -210,12 +218,8 @@ async fn submit_price(
         .await
         .context("fetch blockhash")?;
 
-    let tx = Transaction::new_signed_with_payer(
-        &[ix],
-        Some(&admin.pubkey()),
-        &[admin.as_ref()],
-        bh,
-    );
+    let tx =
+        Transaction::new_signed_with_payer(&[ix], Some(&admin.pubkey()), &[admin.as_ref()], bh);
 
     let sig = client
         .send_and_confirm_transaction_with_spinner_and_commitment(
@@ -306,8 +310,29 @@ fn to_fixed_6(txt: &str) -> Result<u64> {
     // - "120.12" -> 120_120_000
     // - "0.000001" -> 1
     // Extra digits after the 6th decimal place should be truncated, not rounded.
-    let _ = txt;
-    todo!("student task: implement fixed-6 parser")
+
+    let mut parts = txt.split('.');
+    let integer = parts.next().unwrap_or("0");
+    let fractional = parts.next().unwrap_or("");
+
+    if parts.next().is_some() {
+        return Err(anyhow!("Invalid number: {txt}"));
+    }
+
+    let integer_value = integer.parse::<u64>()?;
+
+    // Берем первые 6 цифр дробной части
+    let fractional_truncated = &fractional[0..std::cmp::min(6, fractional.len())];
+    let fractional_padded = format!("{:0<6}", fractional_truncated);
+    let fractional_value = fractional_padded
+        .parse::<u64>()
+        .map_err(|_| anyhow!("Invalid fraction: {txt}"))?;
+
+    Ok(integer_value
+        .checked_mul(1_000_000)
+        .ok_or(anyhow!("math overflow"))?
+        .checked_add(fractional_value)
+        .ok_or(anyhow!("math overflow"))?)
 }
 
 #[cfg(test)]
@@ -340,7 +365,7 @@ mod tests {
     fn to_fixed_6_truncates_fraction_to_six_digits() {
         // TODO(student): this assertion is intentionally wrong.
         // The parser is expected to truncate after 6 digits instead of rounding.
-        assert_eq!(to_fixed_6("1.1234569").unwrap(), 1_123_457);
+        assert_eq!(to_fixed_6("1.1234569").unwrap(), 1_123_456);
     }
 
     #[test]
@@ -395,7 +420,10 @@ mod tests {
         match source {
             PriceSource::Mock(_) => panic!("expected http source"),
             PriceSource::Http { url } => {
-                assert_eq!(url, "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT")
+                assert_eq!(
+                    url,
+                    "https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT"
+                )
             }
         }
     }
