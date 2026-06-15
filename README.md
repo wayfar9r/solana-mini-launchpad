@@ -112,22 +112,32 @@
 
 ### Адреса контрактов
 
-#### Адресс sol usd oracle : 3EKbZCxvUXzrZaVKYHc7BcyqrVQPpMmN3vysSxPfZ6iE
+#### Адресс sol usd oracle
+
+3EKbZCxvUXzrZaVKYHc7BcyqrVQPpMmN3vysSxPfZ6iE
 
 ##### Транзакции
 
 1. https://explorer.solana.com/tx/46MnvZR8BHkqPZEcvdPBwh3wB9DPMFJ188BaszPUKh1Boi7XvA3Cs6GTz2QtajL6aoAedFgJux6c4RGxbsgP9iWt?cluster=devnet
 2. https://explorer.solana.com/tx/4DLddmefJKDDFxkymUtmLuQR8aKK7xopva8TgjRtm8JNnxomfpJPZaMJK8A161EsrhU1ybzuPAq2Ld3DSah31L35?cluster=devnet
 
-#### Адрес token minter : CuDJpGcDkPPUyFXQrGV6x3WZGADdiVE3tcK7WA4j5vFa
+#### Адрес token minter
+
+CuDJpGcDkPPUyFXQrGV6x3WZGADdiVE3tcK7WA4j5vFa
 
 ##### Транзакции
 
 1. https://explorer.solana.com/tx/4FpKMbMt3DmHpdT4gHx55VrhCyjd2z6MTYNShbxyxBFmq7vTLTgZCfcmzqQKjYGYguWXKfEt5p2LA3myUK5UZDvd?cluster=devnet
 2. https://explorer.solana.com/tx/ii8K5NVY692V25kZo42enAfJ1MscZ2VJWY7ggzMZEnV4oZBipYDeea7h7DewArQeaWgV28n8LFGfNxdcmCN7KgH?cluster=devnet
 
-### Oracle state pubkey: EwWo2g3crUNLeXPRCA1VSRXLEBmXLe6MZgSzLYRhjPHS
+### Oracle state pubkey
 
-### Адрес минта 6vjErcmq6BhYYhj9mNmWWZsHXADK99bLqKJ9D8w6bdzR
+EwWo2g3crUNLeXPRCA1VSRXLEBmXLe6MZgSzLYRhjPHS
 
-### Кошелек с которого был выпущен токен CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt
+### Адрес минта
+
+6vjErcmq6BhYYhj9mNmWWZsHXADK99bLqKJ9D8w6bdzR
+
+### Кошелек с которого был выпущен токен
+
+CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt
