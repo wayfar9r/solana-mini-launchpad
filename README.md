@@ -152,3 +152,10 @@ https://explorer.solana.com/address/CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt
 
 1. https://explorer.solana.com/tx/3YKGqVwfaWTysmtLJHiVi6y2gqCDMoyjj8WhvHnQKumxDYe6YzcvZ2z1ALwMk9oXcT887zSDUxXNHrdnCxtkyJPM?cluster=devnet
 2. https://explorer.solana.com/tx/3Jp84e7qmph8w2KkZSsc9yut8xuQCJqiBEz4snBeitTQC1qFeRen75W5UwLJvcuKio8my9WTVWx3ycDyu6zd9Nxw?cluster=devnet
+
+## TODO
+
+1. Было бы здорово добавить проверку актуальности цены оракула в mint_token, раз мы её имеем в стейте (например, require!(Clock::get()?.slot - oracle_state.last_updated_slot <= MAX_STALENESS)).
+2. В launchpad можно стейт и события вынести в отдельный файл — так же, как в оракле. Это немного добавит удобства в работе с большими контрактами.
+3. В аннотациях ///CHECK: для Metaplex Token Metadata Program и Metadata PDA‑аккаунтов можно указать, что их проверка проведена в коде метода контракта. Это немного ускорит проверку безопасности контракта.
+4. При применении защищенного умножения считается правильным преобразовывать тип цены к u128 и обратно. Это может помочь избежать ошибки на граничных значениях.
