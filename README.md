@@ -136,8 +136,19 @@ EwWo2g3crUNLeXPRCA1VSRXLEBmXLe6MZgSzLYRhjPHS
 
 ### Адрес минта
 
-6vjErcmq6BhYYhj9mNmWWZsHXADK99bLqKJ9D8w6bdzR
+1. 6vjErcmq6BhYYhj9mNmWWZsHXADK99bLqKJ9D8w6bdzR
+2. BEbtCXwcZQFyAtpS56i2THh2CEbY16S6Mq6Wqt8yqSWF
+3. GiTKgwP8kmoQc8Z35EE2qFhAgK1ugjf1kZaDPp3eGDRD
+
+https://explorer.solana.com/address/CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt/tokens?cluster=devnet
 
 ### Кошелек с которого был выпущен токен
 
 CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt
+
+https://explorer.solana.com/address/CC7m6vdDZV7m6WDCqg9YyBoKdjFeMNugQerobQ3DxQYt?cluster=devnet
+
+Транзакции:
+
+1. https://explorer.solana.com/tx/3YKGqVwfaWTysmtLJHiVi6y2gqCDMoyjj8WhvHnQKumxDYe6YzcvZ2z1ALwMk9oXcT887zSDUxXNHrdnCxtkyJPM?cluster=devnet
+2. https://explorer.solana.com/tx/3Jp84e7qmph8w2KkZSsc9yut8xuQCJqiBEz4snBeitTQC1qFeRen75W5UwLJvcuKio8my9WTVWx3ycDyu6zd9Nxw?cluster=devnet
