@@ -8,13 +8,8 @@ pub use state::OracleState;
 declare_id!("3EKbZCxvUXzrZaVKYHc7BcyqrVQPpMmN3vysSxPfZ6iE");
 
 fn apply_price_update(oracle: &mut OracleState, new_price: u64, current_slot: u64) -> Result<()> {
-    // TODO(student): finish the happy-path state update.
-    // Hint: once validation passes, the oracle should remember both the latest
-    // price and the slot at which it was refreshed.
-    // let _ = (oracle, new_price, current_slot);
     oracle.price = new_price;
     oracle.last_updated_slot = current_slot;
-    // todo!("student task: persist the new price and slot");
     Ok(())
 }
 
